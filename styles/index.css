@@ -1,0 +1,17 @@
+.square-img {
+  margin-top: 0.75rem;
+  width: 200px;
+  height: 200px;
+  object-fit: cover; /* crop while preserving aspect ratio */
+  display: block;
+}
+
+.card-body-align-bottom {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}
+
+.card-body-text-overflow {
+    overflow: scroll;
+}
