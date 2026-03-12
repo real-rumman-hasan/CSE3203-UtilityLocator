@@ -4,3 +4,5 @@ Utility Locator is a service that collects and lists essential utilities from a 
 
 Link for Figma Project:
 https://www.figma.com/design/e3unQkaBF1IS1ZtYfzJTVr/DP2-final?node-id=0-1&t=RXLsk7wzs5IojUxz-1
+
+UtilityLocator Link: https://real-rumman-hasan.github.io/CSE3203-UtilityLocator/
