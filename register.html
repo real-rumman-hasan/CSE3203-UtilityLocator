@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="styles/login.css">
+    <link
+      rel="shortcut icon"
+      href="images/logos/logo.svg"
+      type="image/x-icon"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body class="text-center">
+    <div class="spacer-100"></div>
+
+    <main class="form-register">
+      <a href="index.html">
+        <img class="mb-4" src="images/logos/logo.svg" alt="" width="200" />
+      </a>
+      <div class="container py-5">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <h4 class="card-title mb-3">Register</h4>
+                <form id="regForm" novalidate>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Enter First name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="firstName"
+                        name="firstName"
+                        pattern="^[A-Za-z.\s]+$"
+                        required
+                        maxlength="50"
+                        title="Letters, spaces and periods only"
+                      />
+                      <div class="invalid-feedback">
+                        Please enter a valid first name (letters, spaces,
+                        periods).
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Enter Last name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="lastName"
+                        name="lastName"
+                        pattern="^[A-Za-z.\s]+$"
+                        required
+                        maxlength="50"
+                        title="Letters, spaces and periods only"
+                      />
+                      <div class="invalid-feedback">
+                        Please enter a valid last name (letters, spaces,
+                        periods).
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <label class="form-label">Enter Email</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        name="email"
+                        required
+                      />
+                      <div class="invalid-feedback">
+                        Please provide a valid email address.
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <label class="form-label">Enter Phone number</label>
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="phone"
+                        name="phone"
+                        pattern="^\+?\d{7,15}$"
+                        required
+                        title="Digits only, optional leading +, 7–15 digits"
+                      />
+                      <div class="invalid-feedback">
+                        Please enter a valid phone number (digits only, optional
+                        +).
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Enter Role</label>
+                      <select
+                        class="form-select"
+                        id="role"
+                        name="role"
+                        required
+                      >
+                        <option value="" selected disabled>Choose...</option>
+                        <option>Provider</option>
+                        <option>Customer</option>
+                      </select>
+                      <div class="invalid-feedback">Please select a role.</div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Enter Postal Code</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="postal"
+                        name="postal"
+                        pattern="^[A-Za-z0-9\s-]{3,10}$"
+                        required
+                        maxlength="10"
+                        title="3–10 characters: letters, digits, spaces or hyphen"
+                      />
+                      <div class="invalid-feedback">
+                        Please enter a valid postal code.
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">District</label>
+                      <select
+                        class="form-select"
+                        id="district"
+                        name="district"
+                        required
+                      >
+                        <option value="" selected disabled>
+                          Select district
+                        </option>
+                        <option>District 1</option>
+                        <option>District 2</option>
+                        <option>District 3</option>
+                        <option>District 4</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Please select a district.
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Area</label>
+                      <select
+                        class="form-select"
+                        id="area"
+                        name="area"
+                        required
+                      >
+                        <option value="" selected disabled>Select area</option>
+                        <option>Area 1</option>
+                        <option>Area 2</option>
+                        <option>Area 3</option>
+                      </select>
+                      <div class="invalid-feedback">Please select an area.</div>
+                    </div>
+
+                    <div class="col-12 text-center">
+                      <a href="#" type="submit" class="btn btn-primary px-5 py-2">
+                        Register
+                      </a>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="spacer-100"></div>
+
+    <footer
+      class="container-fluid p-5 text-center fw-bold bg-primary text-light"
+    >
+      &copy; TeamOne
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
