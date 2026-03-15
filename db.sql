@@ -1,6 +1,6 @@
- CREATE DATABASE  utility_locator;
+ CREATE DATABASE  db;
 
-USE utility_locator;
+USE db; 
 
 CREATE TABLE Role (
     roleID INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,6 +80,8 @@ CREATE TABLE AvailabilitySchedule (
     FOREIGN KEY (providerID) REFERENCES Provider(providerID)
 );
 
+/*JobRequest table to track service requests from customers to providers, including scheduling and payment details
+*/
 CREATE TABLE JobRequest (
     requestID INT AUTO_INCREMENT PRIMARY KEY,
     customerID INT,
