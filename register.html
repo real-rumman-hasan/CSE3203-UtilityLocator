@@ -30,7 +30,7 @@
             <div class="card shadow-sm">
               <div class="card-body">
                 <h4 class="card-title mb-3">Register</h4>
-                <form id="regForm" novalidate>
+                <form method="POST" action="register.php">
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label class="form-label">Enter First name</label>
@@ -97,8 +97,14 @@
                         Please enter a valid phone number (digits only, optional
                         +).
                       </div>
-                    </div>
 
+                      <div class="col-12">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" required>
+                      </div>
+
+                    </div>
+                    
                     <div class="col-md-6">
                       <label class="form-label">Enter Role</label>
                       <select
@@ -108,8 +114,8 @@
                         required
                       >
                         <option value="" selected disabled>Choose...</option>
-                        <option>Provider</option>
-                        <option>Customer</option>
+                        <option value="2">Provider</option>
+                        <option value="1">Customer</option>
                       </select>
                       <div class="invalid-feedback">Please select a role.</div>
                     </div>
@@ -169,9 +175,9 @@
                     </div>
 
                     <div class="col-12 text-center">
-                      <a href="#" type="submit" class="btn btn-primary px-5 py-2">
+                      <button type="submit" class="btn btn-primary px-5 py-2">
                         Register
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </form>
