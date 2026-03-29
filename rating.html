@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Star Rating</title>
+
+<style>
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.review-box {
+    max-width: 500px;
+    padding: 20px;
+    border: 1px solid #eee;
+    width: 100%;
+}
+
+.stars {
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* Default stars */
+.star {
+    color: #ccc;
+    transition: 0.2s;
+}
+
+/* GFG color levels */
+.one { color: red; }
+.two { color: orange; }
+.three { color: #ffcc00; }
+.four { color: #99cc00; }
+.five { color: green; }
+
+#output {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #555;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    margin-top: 12px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    resize: none;
+}
+
+#submit-review {
+    background-color: #f57224;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="review-box">
+    <h3>Rate this product</h3>
+    
+    <div class="stars">
+        <span class="star" onclick="gfg(1)">&#9733;</span>
+        <span class="star" onclick="gfg(2)">&#9733;</span>
+        <span class="star" onclick="gfg(3)">&#9733;</span>
+        <span class="star" onclick="gfg(4)">&#9733;</span>
+        <span class="star" onclick="gfg(5)">&#9733;</span>
+    </div>
+
+    <p id="output"></p>
+
+    <textarea id="review-text" placeholder="Describe your experience (optional)"></textarea>
+    
+    <button id="submit-review">Submit Review</button>
+</div>
+
+<script>
+// Access stars and output
+let stars = document.getElementsByClassName("star");
+let output = document.getElementById("output");
+
+let rating = 0;
+
+// Update rating
+function gfg(n) {
+    remove();
+    rating = n;
+
+    let cls = "";
+    if (n == 1) cls = "one";
+    else if (n == 2) cls = "two";
+    else if (n == 3) cls = "three";
+    else if (n == 4) cls = "four";
+    else if (n == 5) cls = "five";
+
+    for (let i = 0; i < n; i++) {
+        stars[i].className = "star " + cls;
+    }
+
+    output.innerText = "Rating is: " + n + "/5";
+}
+
+// Remove old styles
+function remove() {
+    for (let i = 0; i < stars.length; i++) {
+        stars[i].className = "star";
+    }
+}
+
+// Submit review
+document.getElementById('submit-review').addEventListener('click', () => {
+    const text = document.getElementById('review-text').value;
+
+    if (rating === 0) {
+        alert("Please select stars");
+        return;
+    }
+
+    alert(`Rating: ${rating}, Review: ${text}`);
+});
+</script>
+
+</body>
+</html>
