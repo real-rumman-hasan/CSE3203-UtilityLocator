@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <style>
+        main {
+            min-height: 100vh;
+        }
+    </style>
+  </head>
+  <body>
+        <!-- navigation bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand mx-auto fw-bold" href="index.html">
+          <img src="images/logos/logo.svg" width="60" alt="Logo" />
+          UtilityLocator
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-bold">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="index.html"
+                >Home</a
+              >
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Services
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="service.html">Gas</a></li>
+                <li>
+                  <a class="dropdown-item" href="service.html">Sanitary</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="service.html">Electrical</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="service.html">Shifting</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="service.html">Lock Smith</a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="service.html">Miscellaneous</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.html">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="help.html">Help</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="faq.html">FAQ</a>
+            </li>
+          </ul>
+          <div class="d-grid gap-2 d-md-block">
+            <a
+              href="register.html"
+              class="btn btn-success fw-bold"
+              type="button"
+              >Register</a
+            >
+            <a href="login.html" class="btn btn-secondary fw-bold" type="button"
+              >Login</a
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container p-5">
+        <div class="container mt-4">
+          <div class="card shadow-sm p-4">
+            <h4 class="mb-4">Complete Your Payment</h4>
+    
+            <!-- Service Summary -->
+            <div class="mb-3">
+              <p class="mb-1"><strong>Service:</strong> Electrical Repair</p>
+              <p class="mb-1"><strong>Provider:</strong> John Electricals</p>
+              <p class="mb-1"><strong>Total Amount:</strong> ৳1500</p>
+            </div>
+    
+            <hr />
+    
+            <!-- Payment Method Selection -->
+            <h5 class="mb-3">Select Payment Method</h5>
+    
+            <form action="process_payment.php" method="POST">
+              <div class="form-check mb-2">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="payment_method"
+                  value="bkash"
+                  id="bkash"
+                  required
+                />
+                <label class="form-check-label" for="bkash"> bKash </label>
+              </div>
+    
+              <div class="form-check mb-2">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="payment_method"
+                  value="nagad"
+                  id="nagad"
+                />
+                <label class="form-check-label" for="nagad"> Nagad </label>
+              </div>
+    
+              <div class="form-check mb-2">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="payment_method"
+                  value="rocket"
+                  id="rocket"
+                />
+                <label class="form-check-label" for="rocket"> Rocket </label>
+              </div>
+    
+              <div class="form-check mb-3">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="payment_method"
+                  value="cod"
+                  id="cod"
+                />
+                <label class="form-check-label" for="cod"> Cash on Delivery </label>
+              </div>
+    
+              <!-- Optional: Transaction Number Input -->
+              <div class="mb-3">
+                <label class="form-label">Transaction Number (if applicable)</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="transaction_id"
+                  placeholder="Enter transaction ID"
+                />
+              </div>
+    
+              <!-- Hidden fields (example) -->
+              <input type="hidden" name="order_id" value="123" />
+    
+              <!-- Submit Button -->
+              <button type="submit" class="btn btn-success w-100">
+                Confirm Payment
+              </button>
+            </form>
+          </div>
+        </div>
+    </main>
+
+    <!-- footer -->
+    <footer
+      class="container-fluid p-5 text-center fw-bold bg-primary text-light"
+    >
+      &copy; TeamOne
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
