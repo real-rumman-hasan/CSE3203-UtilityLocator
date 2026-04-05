@@ -15,14 +15,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $phone = $_POST['phone'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    $roleText = $_POST['role'];
+    $roleInput = strtolower(trim($_POST['role']));
+    $roleMap = [
+        '1' => [1, 'Customer'],
+        'customer' => [1, 'Customer'],
+        '2' => [2, 'Provider'],
+        'provider' => [2, 'Provider'],
+    ];
 
-    // Convert role text → roleID
-    if ($roleText == "Customer") {
-        $roleID = 1;
-    } else {
-        $roleID = 2;
+    if (!isset($roleMap[$roleInput])) {
+        die("Invalid role selected");
     }
+
+    $roleID = $roleMap[$roleInput][0];
+    $roleName = $roleMap[$roleInput][1];
+
+    $roleUpsert = $conn->prepare("INSERT INTO Role (roleID, roleName) VALUES (?, ?) ON DUPLICATE KEY UPDATE roleName=VALUES(roleName)");
+    $roleUpsert->bind_param("is", $roleID, $roleName);
+    $roleUpsert->execute();
 
     $district = $_POST['district'];
     $area = $_POST['area'];
@@ -47,11 +57,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $userID = $stmt->insert_id;
 
     // Insert role table relation
-    if ($roleID == 1) {
-        $conn->query("INSERT INTO Customer (customerID) VALUES ($userID)");
+    if (strcasecmp($roleName, "Customer") === 0) {
+        $stmt2 = $conn->prepare("INSERT INTO Customer (customerID) VALUES (?)");
     } else {
-        $conn->query("INSERT INTO Provider (providerID) VALUES ($userID)");
+        $stmt2 = $conn->prepare("INSERT INTO Provider (providerID) VALUES (?)");
     }
+
+    $stmt2->bind_param("i", $userID);
+    $stmt2->execute();
 
     // Insert location
     $loc = $conn->prepare("INSERT INTO UserLocation (userID, district, area, postalCode) VALUES (?, ?, ?, ?)");

@@ -228,5 +228,35 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+<script>
+fetch("profile_fetch.php")
+.then(res => res.json())
+.then(data => {
+    document.querySelector("#name").innerText = data.userName;
+    document.querySelector("#email").innerText = data.email;
+    document.querySelector("#phone").innerText = data.phone;
+});
+</script>
+
+<script>
+fetch("orders_fetch.php")
+.then(res => res.json())
+.then(data => {
+    let container = document.querySelector(".list-group");
+    container.innerHTML = "";
+
+    data.forEach(order => {
+        container.innerHTML += `
+        <div class="list-group-item mb-3 shadow-sm rounded">
+            <h5>Provider: ${order.userName}</h5>
+            <p><strong>Date:</strong> ${order.scheduleDate}</p>
+            <p><strong>Status:</strong> ${order.status}</p>
+        </div>
+        `;
+    });
+});
+</script>
   </body>
 </html>

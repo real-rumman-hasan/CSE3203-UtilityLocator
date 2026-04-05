@@ -7,6 +7,10 @@ CREATE TABLE Role (
     roleName VARCHAR(50) NOT NULL
 );
 
+INSERT INTO Role (roleID, roleName) VALUES
+(1, 'Customer'),
+(2, 'Provider');
+
 CREATE TABLE User (
     userID INT AUTO_INCREMENT PRIMARY KEY,
     roleID INT,
