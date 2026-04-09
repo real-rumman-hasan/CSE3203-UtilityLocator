@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['roleID'] = $user['roleID'];
             $_SESSION['userName'] = $user['userName'];
 
-            header("Location: index.html"); // or dashboard
+            header("Location: index.php"); // or dashboard
             exit();
 
         } else {

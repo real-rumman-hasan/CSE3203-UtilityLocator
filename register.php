@@ -71,6 +71,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $loc->bind_param("isss", $userID, $district, $area, $postal);
     $loc->execute();
 
-    echo "<script>alert('Registration Successful'); window.location='login.php';</script>";
+    echo "<script>alert('Registration Successful'); window.location='login.html';</script>";
 }
 ?>

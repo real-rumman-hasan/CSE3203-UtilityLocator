@@ -1,0 +1,279 @@
+<?php
+session_start();
+?>
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Homepage: UtilityLocator</title>
+    <link
+      rel="shortcut icon"
+      href="images/logos/logo.svg"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="styles/index.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <!-- navigation bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <a class="navbar-brand mx-auto fw-bold" href="index.php">
+          <img src="images/logos/logo.svg" width="60" alt="Logo" />
+          UtilityLocator
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-bold">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="index.php"
+                >Home</a
+              >
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                Services
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="service.php">Gas</a></li>
+                <li>
+                  <a class="dropdown-item" href="service.php">Sanitary</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="service.php">Electrical</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="service.php">Shifting</a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="service.php">Lock Smith</a>
+                </li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a class="dropdown-item" href="service.php">Miscellaneous</a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.php">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="help.php">Help</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="faq.php">FAQ</a>
+            </li>
+          </ul>
+
+<!-- Php to hide login and register button -->
+
+          <?php if (isset($_SESSION['userID'])): ?>
+            <div class="d-grid gap-2 d-md-block">
+              <a
+                href="customerprofile.php"
+                class="btn btn-success fw-bold"
+                type="button"
+              >
+               <?php echo htmlspecialchars($_SESSION['userName']); ?> 
+              </a>
+              <a href="logout.php" class="btn btn-secondary fw-bold" type="button"
+                >Logout</a
+              >
+            </div>
+          <?php else: ?>
+            <div class="d-grid gap-2 d-md-block">
+              <a
+                href="register.html"
+                class="btn btn-success fw-bold"
+                type="button"
+                >Register</a
+              >
+              <a href="login.html" class="btn btn-secondary fw-bold" type="button"
+                >Login</a
+              >
+            </div>
+          <?php endif; ?>
+
+        </div>
+      </div>
+    </nav>
+
+    <!-- hero section -->
+    <div class="container my-5">
+      <div class="row">
+        <div
+          class="col-12 col-md-6 d-flex justify-content-center align-items-center"
+        >
+          <p class="fs-1 fw-bold text-primary text-center">
+            Trusted Utility Services At Your Doorstep
+          </p>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="text-center">
+            <img src="images/logos/logo.svg" class="img-fluid" alt="" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container text-center">
+      <div class="d-grid gap-2 d-md-block">
+        <a href="service.php" class="btn btn-lg btn-primary" type="button">
+          Get Services
+        </a>
+        <a
+          href="register.html"
+          class="btn btn-lg btn-outline-primary"
+          type="button"
+        >
+          Become a Worker
+        </a>
+      </div>
+    </div>
+
+    <!-- browse services -->
+    <div class="container my-5">
+      <div class="row">
+        <p class="fs-3 text-center">Browse Services</p>
+      </div>
+      <div class="row gap-4 justify-content-center">
+        <div class="card" style="width: 18rem">
+          <img
+            src="images/service/gas.jpg"
+            class="card-img-top square-img"
+            alt="..."
+          />
+          <div class="card-body card-body-align-bottom">
+            <h5 class="card-title">Gas Service</h5>
+            <p class="card-text">
+              Safe installation, repair, and maintenance of gas lines, stoves,
+              and related appliances.
+            </p>
+            <a href="service.php" class="btn btn-primary">View</a>
+          </div>
+        </div>
+
+        <div class="card" style="width: 18rem">
+          <img
+            src="images/service/sanitary.jpg"
+            class="card-img-top square-img"
+            alt="..."
+          />
+          <div class="card-body card-body-align-bottom">
+            <h5 class="card-title">Sanitary Service</h5>
+            <p class="card-text">
+              Professional plumbing solutions for pipes, drains, toilets, and
+              water systems.
+            </p>
+            <a href="service.php" class="btn btn-primary">View</a>
+          </div>
+        </div>
+
+        <div class="card" style="width: 18rem">
+          <img
+            src="images/service/electrical.webp"
+            class="card-img-top square-img"
+            alt="..."
+          />
+          <div class="card-body card-body-align-bottom">
+            <h5 class="card-title">Electrical Service</h5>
+            <p class="card-text">
+              Installation, repair, and maintenance of wiring, switches,
+              lighting, and electrical systems.
+            </p>
+            <a href="service.php" class="btn btn-primary">View</a>
+          </div>
+        </div>
+
+        <div class="card" style="width: 18rem">
+          <img
+            src="images/service/shifting.jpg"
+            class="card-img-top square-img"
+            alt="..."
+          />
+          <div class="card-body card-body-align-bottom">
+            <h5 class="card-title">Shifting Service</h5>
+            <p class="card-text">
+              SReliable home and office relocation with safe packing, transport,
+              and setup.
+            </p>
+            <a href="service.php" class="btn btn-primary">View</a>
+          </div>
+        </div>
+
+        <div class="card" style="width: 18rem">
+          <img
+            src="images/service/locksmith.jpg"
+            class="card-img-top square-img"
+            alt="..."
+          />
+          <div class="card-body card-body-align-bottom">
+            <h5 class="card-title">Locksmith Service</h5>
+            <p class="card-text">
+              SQuick assistance for lock installation, repair, replacement, and
+              emergency unlocking.
+            </p>
+            <a href="service.php" class="btn btn-primary">View</a>
+          </div>
+        </div>
+
+        <div class="card" style="width: 18rem">
+          <img
+            src="images/service/misc.jpg"
+            class="card-img-top square-img"
+            alt="..."
+          />
+          <div class="card-body card-body-align-bottom">
+            <h5 class="card-title">Miscellaneous Services</h5>
+            <p class="card-text">
+              General services for tasks that don’t fall under other specific
+              categories.
+            </p>
+            <a href="service.php" class="btn btn-primary">View</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <?php
+    echo 'my first php scriptsss';
+    ?>
+
+    <!-- footer -->
+    <footer
+      class="container-fluid p-5 text-center fw-bold bg-primary text-light"
+    >
+      &copy; TeamOne
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
