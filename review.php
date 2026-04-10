@@ -1,21 +1,29 @@
- <?php
+<?php
 include 'db_connect.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Check if the request is coming via fetch (JSON)
+$contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
 
-    $userId = $_POST['userId'];
-    $providerId = $_POST['providerId'];
-    $rating = $_POST['rating'];
-    $comment = $_POST['comment'];
+if ($contentType === "application/json") {
+    // Receive the JSON data
+    $content = trim(file_get_contents("php://input"));
+    $decoded = json_decode($content, true);
 
-    $sql = "INSERT INTO ReviewRating (userId, providerId, rating, comment)
-            VALUES ('$userId', '$providerId', '$rating', '$comment')";
+    // Map your JS data to your SQL columns
+    $jobID   = $conn->real_escape_string($decoded['jobRequestID']);
+    $rating  = $conn->real_escape_string($decoded['rating']);
+    $comment = $conn->real_escape_string($decoded['comment']);
+
+    $sql = "INSERT INTO ReviewRating (jobRequestID, rating, comment)
+            VALUES ('$jobID', '$rating', '$comment')";
 
     if ($conn->query($sql) === TRUE) {
-        echo "Review submitted!";
+        echo "Review submitted successfully!";
     } else {
-        echo "Error: " . $conn->error;
+        echo "Database Error: " . $conn->error;
     }
+} else {
+    echo "Invalid Request Type";
 }
 
 $conn->close();

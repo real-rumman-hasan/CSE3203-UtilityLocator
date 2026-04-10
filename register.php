@@ -67,8 +67,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt2->execute();
 
     // Insert location
-    $loc = $conn->prepare("INSERT INTO UserLocation (userID, district, area, postalCode) VALUES (?, ?, ?, ?)");
-    $loc->bind_param("isss", $userID, $district, $area, $postal);
+    $latitude = !empty($_POST['latitude']) ? $_POST['latitude'] : null;
+    $longitude = !empty($_POST['longitude']) ? $_POST['longitude'] : null;
+
+    $loc = $conn->prepare("INSERT INTO UserLocation (userID, district, area, postalCode, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?)");
+    $loc->bind_param("isssdd", $userID, $district, $area, $postal, $latitude, $longitude);
     $loc->execute();
 
     echo "<script>alert('Registration Successful'); window.location='login.php';</script>";

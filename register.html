@@ -148,31 +148,52 @@
                         <option value="" selected disabled>
                           Select district
                         </option>
-                        <option>District 1</option>
-                        <option>District 2</option>
-                        <option>District 3</option>
-                        <option>District 4</option>
+                        <option>Dhaka</option>
+                        <option>Rangpur</option>
+                        <option>Chittagong</option>
+                        <option>Feni</option>
                       </select>
                       <div class="invalid-feedback">
                         Please select a district.
                       </div>
                     </div>
 
-                    <div class="col-md-6">
-                      <label class="form-label">Area</label>
-                      <select
-                        class="form-select"
-                        id="area"
-                        name="area"
-                        required
-                      >
-                        <option value="" selected disabled>Select area</option>
-                        <option>Area 1</option>
-                        <option>Area 2</option>
-                        <option>Area 3</option>
-                      </select>
-                      <div class="invalid-feedback">Please select an area.</div>
-                    </div>
+                    <input type="hidden" id="latitude" name="latitude">
+<input type="hidden" id="longitude" name="longitude">
+
+<div class="col-12 mt-3">
+    <button type="button" class="btn btn-outline-danger w-100" onclick="getLocation()">
+        <i class="bi bi-geo-alt"></i> Pin My Exact Location (Required for Maps)
+    </button>
+    <small id="locationStatus" class="text-muted"></small>
+</div>
+
+<script>
+function getLocation() {
+    const status = document.getElementById("locationStatus");
+    
+    if (!navigator.geolocation) {
+        status.innerHTML = "Geolocation is not supported by your browser";
+        return;
+    }
+
+    status.innerHTML = "Locating...";
+    status.className = "text-primary";
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            document.getElementById("latitude").value = position.coords.latitude;
+            document.getElementById("longitude").value = position.coords.longitude;
+            status.innerHTML = "✔ Location captured successfully!";
+            status.className = "text-success fw-bold";
+        },
+        () => {
+            status.innerHTML = "Unable to retrieve location. Please allow location access.";
+            status.className = "text-danger";
+        }
+    );
+}
+</script>
 
                     <div class="col-12 text-center">
                       <button type="submit" class="btn btn-primary px-5 py-2">
