@@ -21,7 +21,7 @@
     <div class="spacer-100"></div>
 
     <main class="form-register">
-      <a href="index.html">
+      <a href="index.php">
         <img class="mb-4" src="images/logos/logo.svg" alt="" width="200" />
       </a>
       <div class="container py-5">
@@ -157,7 +157,23 @@
                         Please select a district.
                       </div>
                     </div>
-
+                    <div class="col-md-6">
+                      <label class="form-label">Area</label>
+                      <select
+                        class="form-select"
+                        id="area"
+                        name="area"
+                        required
+                      >
+                        <option value="" selected disabled>Select area</option>
+                        <option>Area 1</option>
+                        <option>Area 2</option>
+                        <option>Area 3</option>
+                      </select>
+                      <div class="invalid-feedback">
+                        Please select an area.
+                      </div>
+                    </div>
                     <input type="hidden" id="latitude" name="latitude">
 <input type="hidden" id="longitude" name="longitude">
 

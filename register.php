@@ -74,6 +74,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $loc->bind_param("isssdd", $userID, $district, $area, $postal, $latitude, $longitude);
     $loc->execute();
 
-    echo "<script>alert('Registration Successful'); window.location='login.php';</script>";
+    echo "<script>alert('Registration Successful'); window.location='login.html';</script>";
 }
 ?>

@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -21,7 +25,7 @@
     <!-- navigation bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
       <div class="container-fluid">
-        <a class="navbar-brand mx-auto fw-bold" href="index.html">
+        <a class="navbar-brand mx-auto fw-bold" href="index.php">
           <img src="images/logos/logo.svg" width="60" alt="Logo" />
           UtilityLocator
         </a>
@@ -39,7 +43,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-bold">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="index.html"
+              <a class="nav-link active" aria-current="page" href="index.php"
                 >Home</a
               >
             </li>
@@ -55,46 +59,64 @@
                 Services
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="service.html">Gas</a></li>
+                <li><a class="dropdown-item" href="service.php">Gas</a></li>
                 <li>
-                  <a class="dropdown-item" href="service.html">Sanitary</a>
+                  <a class="dropdown-item" href="service.php">Sanitary</a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="service.html">Electrical</a>
+                  <a class="dropdown-item" href="service.php">Electrical</a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="service.html">Shifting</a>
+                  <a class="dropdown-item" href="service.php">Shifting</a>
                 </li>
                 <li>
-                  <a class="dropdown-item" href="service.html">Lock Smith</a>
+                  <a class="dropdown-item" href="service.php">Lock Smith</a>
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                  <a class="dropdown-item" href="service.html">Miscellaneous</a>
+                  <a class="dropdown-item" href="service.php">Miscellaneous</a>
                 </li>
               </ul>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="about.html">About</a>
+              <a class="nav-link" href="about.php">About</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="help.html">Help</a>
+              <a class="nav-link" href="help.php">Help</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="faq.html">FAQ</a>
+              <a class="nav-link" href="faq.php">FAQ</a>
             </li>
           </ul>
-          <div class="d-grid gap-2 d-md-block">
-            <a
-              href="register.html"
-              class="btn btn-success fw-bold"
-              type="button"
-              >Register</a
-            >
-            <a href="login.html" class="btn btn-secondary fw-bold" type="button"
-              >Login</a
-            >
-          </div>
+          
+<!-- Php to hide login and register button -->
+
+          <?php if (isset($_SESSION['userID'])): ?>
+            <div class="d-grid gap-2 d-md-block">
+              <a
+                href="customerprofile.php"
+                class="btn btn-success fw-bold"
+                type="button"
+              >
+               <?php echo htmlspecialchars($_SESSION['userName']); ?> 
+              </a>
+              <a href="logout.php" class="btn btn-secondary fw-bold" type="button"
+                >Logout</a
+              >
+            </div>
+          <?php else: ?>
+            <div class="d-grid gap-2 d-md-block">
+              <a
+                href="register.html"
+                class="btn btn-success fw-bold"
+                type="button"
+                >Register</a
+              >
+              <a href="login.html" class="btn btn-secondary fw-bold" type="button"
+                >Login</a
+              >
+            </div>
+          <?php endif; ?>
         </div>
       </div>
     </nav>
