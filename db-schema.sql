@@ -172,3 +172,4 @@ INNER JOIN users u ON u.email = seeded.email
 INNER JOIN services s ON s.name = seeded.service_name
 ON DUPLICATE KEY UPDATE
   custom_price = VALUES(custom_price);
+
