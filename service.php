@@ -1,340 +1,105 @@
 <?php
-session_start();
+declare(strict_types=1);
+
+require_once __DIR__ . '/partials.php';
+
+$services = fetch_services();
+$selectedServiceId = isset($_GET['service_id']) ? (int) $_GET['service_id'] : 0;
+$selectedService = $selectedServiceId > 0 ? fetch_service_by_id($selectedServiceId) : null;
+$providers = [];
+$user = current_user();
+
+if ($selectedService) {
+    $stmt = pdo()->prepare(
+        'SELECT
+            u.id,
+            u.f_name,
+            u.l_name,
+            u.email,
+            u.phone,
+            u.district,
+            u.area,
+            u.postal_code,
+            u.lat,
+            u.lng,
+            u.image,
+            COALESCE(ps.custom_price, s.price) AS display_price,
+            COALESCE(AVG(r.rating), 0) AS rating,
+            COUNT(r.id) AS review_count
+         FROM provider_services ps
+         INNER JOIN users u ON u.id = ps.provider_id
+         INNER JOIN services s ON s.id = ps.service_id
+         LEFT JOIN reviews r ON r.provider_id = u.id
+         WHERE ps.service_id = :service_id
+           AND u.role = "provider"
+           AND u.is_verified = 1
+         GROUP BY u.id, ps.id, s.price
+         ORDER BY rating DESC, u.updated_at DESC'
+    );
+    $stmt->execute(['service_id' => $selectedServiceId]);
+    $providers = $stmt->fetchAll();
+
+}
+
+render_layout_start('Services', 'services');
 ?>
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link
-      rel="shortcut icon"
-      href="images/logos/logo.svg"
-      type="image/x-icon"
-    />
-    <link rel="stylesheet" href="styles/service.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-      crossorigin="anonymous"
-    />
-  </head>
-  <body class="text-center">
-    <!-- navigation bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <div class="container-fluid">
-        <a class="navbar-brand mx-auto fw-bold" href="index.php">
-          <img src="images/logos/logo.svg" width="60" alt="Logo" />
-          UtilityLocator
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-bold">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="index.php"
-                >Home</a
-              >
-            </li>
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="navbarDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Services
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="service.php">Gas</a></li>
-                <li>
-                  <a class="dropdown-item" href="service.php">Sanitary</a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="service.php">Electrical</a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="service.php">Shifting</a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="service.php">Lock Smith</a>
-                </li>
-                <li><hr class="dropdown-divider" /></li>
-                <li>
-                  <a class="dropdown-item" href="service.php">Miscellaneous</a>
-                </li>
-              </ul>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="about.php">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="help.php">Help</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="faq.php">FAQ</a>
-            </li>
-          </ul>
-          
-<!-- Php to hide login and register button -->
+<section class="section">
+  <div class="shell">
+    <?php if ($selectedService): ?>
+      <span class="eyebrow"><?= e($selectedService['name']) ?> providers</span>
+      <h2 class="section-title" style="font-size: 2.6rem;"><?= e($selectedService['name']) ?> experts near you</h2>
+      <p class="section-copy"><?= e($selectedService['desc']) ?></p>
 
-          <?php if (isset($_SESSION['userID'])): ?>
-            <div class="d-grid gap-2 d-md-block">
-              <a
-                href="customerprofile.php"
-                class="btn btn-success fw-bold"
-                type="button"
-              >
-               <?php echo htmlspecialchars($_SESSION['userName']); ?> 
-              </a>
-              <a href="logout.php" class="btn btn-secondary fw-bold" type="button"
-                >Logout</a
-              >
-            </div>
-          <?php else: ?>
-            <div class="d-grid gap-2 d-md-block">
-              <a
-                href="register.html"
-                class="btn btn-success fw-bold"
-                type="button"
-                >Register</a
-              >
-              <a href="login.html" class="btn btn-secondary fw-bold" type="button"
-                >Login</a
-              >
-            </div>
-          <?php endif; ?>
-
-        </div>
-      </div>
-    </nav>
-
-    <!-- available service providers -->
-    <main class="container m-md-5">
-      <h1 class="fs-1 text-center">Service_name_placeholder</h1>
-      <h2 class="fs-3 text-center text-secondary">
-        Available Service Providers
-      </h2>
-
-      <div class="container mt-5">
-        <div class="row g-2" id="provider-list">
-          <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="card" style="width: auto">
-              <img src="images/placeholder/provider.jpg" class="card-img-top" alt="..." />
-              <div class="card-body">
-                <h5 class="card-title">Provider_name</h5>
-                <p class="card-text">
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem quas id sunt dolore ea, reiciendis incidunt itaque modi esse eius qui tenetur necessitatibus totam. Consequuntur mollitia natus maxime repellendus pariatur?
-                </p>
+      <div class="providers-grid">
+        <?php if ($providers): ?>
+          <?php foreach ($providers as $provider): ?>
+            <article class="card">
+              <div class="profile-header" style="grid-template-columns: 96px 1fr;">
+                <img class="avatar" style="width:96px; height:96px;" src="<?= e($provider['image'] ?: default_avatar('Worker')) ?>" alt="<?= e($provider['f_name']) ?>">
+                <div>
+                  <span class="tag">Verified provider</span>
+                  <h3><?= e($provider['f_name'] . ' ' . $provider['l_name']) ?></h3>
+                  <p class="muted"><?= e($provider['area'] ?: 'Dhaka area') ?>, <?= e($provider['district']) ?></p>
+                  <div class="rating-stars"><?= str_repeat('★', (int) round((float) $provider['rating'])) . str_repeat('☆', max(0, 5 - (int) round((float) $provider['rating']))) ?></div>
+                  <p class="helper-text"><?= number_format((float) $provider['rating'], 1) ?> rating from <?= (int) $provider['review_count'] ?> reviews</p>
+                </div>
               </div>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item">Service_Name</li>
-                <li class="list-group-item">Price</li>
-                <li class="list-group-item">
-                  <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ratingModal" onclick="document.getElementById('ratingFrame').src='rating.html?jobID=1'">
-                    Rating
-                  </button>
-                </li>                
-                <li class="list-group-item">
-                  <i class="bi bi-geo-alt-fill text-danger"></i> 
-                  <a href="https://www.google.com/maps/search/?api=1&query=23.8103,90.4125" target="_blank" class="text-decoration-none text-dark">
-                          Distance
-                  </a>
-              </li>
-              </ul>
-              <div class="card-body">
-                <a href="providerprofile.php" class="btn btn-primary card-link">View Profile</a>
+              <div class="service-card-price">BDT <?= number_format((float) $provider['display_price'], 0) ?></div>
+              <p class="muted">Coverage area: <?= e($provider['area'] ?: 'Dhaka') ?>. Final worker assignment is confirmed by admin after payment.</p>
+              <div class="cta-row">
+                <a class="primary-btn" href="provider_profile.php?provider_id=<?= (int) $provider['id'] ?>&service_id=<?= (int) $selectedServiceId ?>">View</a>
+                <?php if (!$user || $user['role'] !== 'customer'): ?>
+                  <a class="ghost-btn" href="login.php">Login to book</a>
+                <?php endif; ?>
               </div>
-            </div>
+            </article>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <div class="panel empty-state">
+            <h3>No verified providers yet</h3>
+            <p>This service is ready, but no worker has been approved for it yet.</p>
           </div>
-
-          <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="card" style="width: auto">
-              <img src="images/placeholder/provider.jpg" class="card-img-top" alt="..." />
-              <div class="card-body">
-                <h5 class="card-title">Provider_name</h5>
-                <p class="card-text">
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem quas id sunt dolore ea, reiciendis incidunt itaque modi esse eius qui tenetur necessitatibus totam. Consequuntur mollitia natus maxime repellendus pariatur?
-                </p>
-              </div>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item">Service_Name</li>
-                <li class="list-group-item">Price</li>
-                <li class="list-group-item">
-                  <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ratingModal" onclick="document.getElementById('ratingFrame').src='rating.html?jobID=2'">
-                    Rating
-                  </button>
-                </li>                <li class="list-group-item">
-                  <i class="bi bi-geo-alt-fill text-danger"></i> 
-                  <a href="https://www.google.com/maps/search/?api=1&query=23.8103,90.4125" target="_blank" class="text-decoration-none text-dark">
-                          Distance
-                  </a>
-              </li>              </ul>
-              <div class="card-body">
-                <a href="providerprofile.php" class="btn btn-primary card-link">View Profile</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="card" style="width: auto">
-              <img src="images/placeholder/provider.jpg" class="card-img-top" alt="..." />
-              <div class="card-body">
-                <h5 class="card-title">Provider_name</h5>
-                <p class="card-text">
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem quas id sunt dolore ea, reiciendis incidunt itaque modi esse eius qui tenetur necessitatibus totam. Consequuntur mollitia natus maxime repellendus pariatur?
-                </p>
-              </div>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item">Service_Name</li>
-                <li class="list-group-item">Price</li>
-                <li class="list-group-item">
-                  <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ratingModal" onclick="document.getElementById('ratingFrame').src='rating.html?jobID=3'">
-                    Rating
-                  </button>
-                </li>
-                <li class="list-group-item">
-                  <i class="bi bi-geo-alt-fill text-danger"></i> 
-                  <a href="https://www.google.com/maps/search/?api=1&query=23.8103,90.4125" target="_blank" class="text-decoration-none text-dark">
-                          Distance
-                  </a>
-              </li>              </ul>
-              <div class="card-body">
-                <a href="providerprofile.php" class="btn btn-primary card-link">View Profile</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="card" style="width: auto">
-              <img src="images/placeholder/provider.jpg" class="card-img-top" alt="..." />
-              <div class="card-body">
-                <h5 class="card-title">Provider_name</h5>
-                <p class="card-text">
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem quas id sunt dolore ea, reiciendis incidunt itaque modi esse eius qui tenetur necessitatibus totam. Consequuntur mollitia natus maxime repellendus pariatur?
-                </p>
-              </div>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item">Service_Name</li>
-                <li class="list-group-item">Price</li>
-                <li class="list-group-item">
-                  <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ratingModal" onclick="document.getElementById('ratingFrame').src='rating.html?jobID=4'">
-                    Rating
-                  </button>
-                </li>
-                <li class="list-group-item">
-                  <i class="bi bi-geo-alt-fill text-danger"></i> 
-                  <a href="https://www.google.com/maps/search/?api=1&query=23.8103,90.4125" target="_blank" class="text-decoration-none text-dark">
-                          Distance
-                  </a>
-              </li>              </ul>
-              <div class="card-body">
-                <a href="providerprofile.php" class="btn btn-primary card-link">View Profile</a>
-              </div>
-            </div>
-          </div>
-
-        </div>
+        <?php endif; ?>
       </div>
-    </main>
-                
-<div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="ratingModalLabel">Submit Rating</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <?php else: ?>
+      <span class="eyebrow">Available services</span>
+      <h2 class="section-title" style="font-size: 2.6rem;">Browse verified service categories</h2>
+      <p class="section-copy">Each category shows approved providers, clear pricing, and a booking flow routed through admin assignment.</p>
+
+      <div class="service-grid">
+        <?php foreach ($services as $service): ?>
+          <article class="card">
+            <div class="service-card-icon"><?= strtoupper($service['name'][0]) ?></div>
+            <h3><?= e($service['name']) ?></h3>
+            <p class="muted"><?= e($service['desc']) ?></p>
+            <div class="service-card-price">From BDT <?= number_format((float) $service['price'], 0) ?></div>
+            <a class="primary-btn" href="service.php?service_id=<?= (int) $service['id'] ?>">View Providers</a>
+          </article>
+        <?php endforeach; ?>
       </div>
-      <div class="modal-body p-0">
-        <iframe id="ratingFrame" src="" style="width:100%; height:450px; border:none; border-radius: 0 0 5px 5px;"></iframe>
-      </div>
-    </div>
+    <?php endif; ?>
   </div>
-</div>
+</section>
 
-    <!-- footer -->
-    <footer
-      class="container-fluid p-5 text-center fw-bold bg-primary text-light"
-    >
-      &copy; TeamOne
-    </footer>
-
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-      <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // 1. Fetch data from your PHP backend
-    fetch('get_providers.php')
-        .then(response => response.json())
-        .then(data => {
-            const container = document.getElementById('provider-list');
-
-            data.forEach(provider => {
-                // 2. Create the HTML for the new cards
-                const cardHTML = `
-                <div class="col-xl-3 col-lg-4 col-md-6">
-                    <div class="card shadow-sm h-100">
-                        <img src="images/placeholder/provider.jpg" class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">${provider.userName}</h5>
-                            <p class="card-text">
-                                This is a dynamically loaded provider from our database.
-                            </p>
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">${provider.serviceName}</li>
-                            <li class="list-group-item">$${provider.price}</li>
-                            <li class="list-group-item">
-                                <button type="button" class="btn btn-sm btn-outline-primary" 
-                                    onclick="openRating('${provider.userID}')">
-                                    Rating
-                                </button>
-                            </li>
-                            <li class="list-group-item">
-                                <i class="bi bi-geo-alt-fill text-danger"></i> 
-                                <a href="https://www.google.com/maps/dir/?api=1&destination=${provider.latitude},${provider.longitude}" 
-                                    target="_blank" class="text-decoration-none text-dark">
-                                    Distance
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="card-body">
-                            <a href="providerprofile.html?id=${provider.userID}" class="btn btn-primary btn-sm w-100">View Profile</a>
-                        </div>
-                    </div>
-                </div>`;
-                
-                // 3. Use += to ADD the new cards after your 4 manual cards
-                container.innerHTML += cardHTML;
-            });
-        })
-        .catch(err => console.error("Error loading extra providers:", err));
-});
-
-// Helper function to handle the Rating Modal
-function openRating(id) {
-    const frame = document.getElementById('ratingFrame');
-    frame.src = 'rating.html?jobID=' + id;
-    var myModal = new bootstrap.Modal(document.getElementById('ratingModal'));
-    myModal.show();
-}
-</script>
-      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-      crossorigin="anonymous"
-    ></script>
-  </body>
-</html>
+<?php render_layout_end(); ?>
