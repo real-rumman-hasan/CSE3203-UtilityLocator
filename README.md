@@ -44,3 +44,8 @@ The development of this project was informed by:
     * Surveys: Data collected from 18–34-year-old urban residents via Google Forms.
     * Field Observation: Analysis of existing informal utility markets in Dhaka.
     * Prototyping: High-fidelity wireframes created in Figma to test user flows.
+
+# Links
+
+* Figma: https://www.figma.com/design/e3unQkaBF1IS1ZtYfzJTVr/DP2-final?node-id=0-1&t=FIXXmEBiLIUWbJqN-1
+* ClickUp: https://app.clickup.com/90182397560/v/li/901815620134
