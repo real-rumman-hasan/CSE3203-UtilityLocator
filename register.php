@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/partials.php';
+require_once "dbapi.php";
 
 $selectedRole = $_GET['role'] ?? ($_POST['role'] ?? 'customer');
 $selectedRole = $selectedRole === 'provider' ? 'provider' : 'customer';
@@ -37,12 +38,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new RuntimeException('Please complete all required fields.');
         }
 
-        if (!filter_var($formData['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new RuntimeException('Please enter a valid email address.');
+        if (!is_alpha_name($formData['f_name']) || !is_alpha_name($formData['l_name'])) {
+            throw new RuntimeException('First name and last name must contain alphabet letters only.');
         }
 
-        if (strlen($password) < 8) {
-            throw new RuntimeException('Password must be at least 8 characters long.');
+        if (!filter_var($formData['email'], FILTER_VALIDATE_EMAIL) || !is_gmail_address($formData['email'])) {
+            throw new RuntimeException('Please enter a valid Gmail address.');
+        }
+
+        if (!is_bd_mobile($formData['phone'])) {
+            throw new RuntimeException('Please enter a valid 11-digit Bangladeshi mobile number.');
+        }
+
+        if (!is_strong_password($password)) {
+            throw new RuntimeException('Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
         }
 
         if (!in_array($formData['district'], $districtOptions, true)) {
@@ -57,13 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new RuntimeException('Please select at least one service you provide.');
         }
 
-        $exists = pdo()->prepare('SELECT id FROM users WHERE email = :email OR phone = :phone LIMIT 1');
-        $exists->execute([
-            'email' => $formData['email'],
-            'phone' => $formData['phone'],
-        ]);
+        $exists = post_to_api('get_user_already_exists.php', $_POST);
 
-        if ($exists->fetch()) {
+        if ($exists) {
             throw new RuntimeException('Email or phone already exists.');
         }
 
@@ -159,19 +164,19 @@ render_layout_start('Register', '');
 
           <div class="field">
             <label for="f_name">First name</label>
-            <input id="f_name" name="f_name" type="text" value="<?= e($formData['f_name']) ?>" required>
+            <input id="f_name" name="f_name" type="text" value="<?= e($formData['f_name']) ?>" pattern="[A-Za-z]+" title="Use alphabet letters only" required>
           </div>
           <div class="field">
             <label for="l_name">Last name</label>
-            <input id="l_name" name="l_name" type="text" value="<?= e($formData['l_name']) ?>" required>
+            <input id="l_name" name="l_name" type="text" value="<?= e($formData['l_name']) ?>" pattern="[A-Za-z]+" title="Use alphabet letters only" required>
           </div>
           <div class="field">
             <label for="email">Email address</label>
-            <input id="email" name="email" type="email" value="<?= e($formData['email']) ?>" required>
+            <input id="email" name="email" type="email" value="<?= e($formData['email']) ?>" pattern="[A-Za-z0-9._%+-]+@gmail\.com" title="Use a Gmail address only" required>
           </div>
           <div class="field">
             <label for="phone">Phone number</label>
-            <input id="phone" name="phone" type="text" value="<?= e($formData['phone']) ?>" required>
+            <input id="phone" name="phone" type="text" value="<?= e($formData['phone']) ?>" inputmode="numeric" maxlength="11" pattern="01[0-9]{9}" title="Enter an 11-digit Bangladeshi mobile number" required>
           </div>
           <div class="field">
             <label for="postal_code">Postal code</label>
@@ -196,7 +201,11 @@ render_layout_start('Register', '');
           </div>
           <div class="field field-full">
             <label for="password">Password</label>
-            <input id="password" name="password" type="password" minlength="8" required>
+            <div class="password-field">
+              <input id="password" name="password" type="password" minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}" title="Use at least 8 characters with uppercase, lowercase, number, and special character" autocomplete="new-password" required>
+              <button class="password-toggle" type="button" data-password-toggle data-target="password" aria-pressed="false">Show</button>
+            </div>
+            <p class="helper-text">Use at least 8 characters with uppercase, lowercase, number, and special character.</p>
           </div>
 
           <?php if ($selectedRole === 'provider'): ?>
@@ -226,4 +235,24 @@ render_layout_start('Register', '');
     </div>
   </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const targetId = button.dataset.target;
+      const input = document.getElementById(targetId);
+      if (!input) {
+        return;
+      }
+
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      button.textContent = isPassword ? 'Hide' : 'Show';
+      button.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+    });
+  });
+});
+</script>
+
 <?php render_layout_end(); ?>
