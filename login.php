@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/partials.php';
+require_once "dbapi.php";
 
 if (is_logged_in()) {
     redirect(login_redirect_path(current_user()['role']));
@@ -19,9 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('login.php');
     }
 
-    $stmt = pdo()->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
-    $stmt->execute(['email' => $email]);
-    $user = $stmt->fetch();
+    $user = post_to_api('get_user_by_email.php', $_POST);
 
     if (!$user || !password_verify($password, $user['password'])) {
         set_flash('error', 'Invalid email or password.');
@@ -71,7 +70,10 @@ render_layout_start('Login', '');
         </div>
         <div class="field field-full">
           <label for="password">Password</label>
-          <input id="password" name="password" type="password" required>
+          <div class="password-field">
+            <input id="password" name="password" type="password" required>
+            <button class="password-toggle" type="button" data-password-toggle data-target="password" aria-pressed="false">Show</button>
+          </div>
         </div>
         <div class="field field-full">
           <label style="display:flex; align-items:center; gap:10px; font-weight:600;">
@@ -89,5 +91,24 @@ render_layout_start('Login', '');
     </div>
   </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const targetId = button.dataset.target;
+      const input = document.getElementById(targetId);
+      if (!input) {
+        return;
+      }
+
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      button.textContent = isPassword ? 'Hide' : 'Show';
+      button.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+    });
+  });
+});
+</script>
 
 <?php render_layout_end(); ?>
