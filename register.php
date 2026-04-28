@@ -73,44 +73,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $imagePath = $selectedRole === 'provider' ? save_uploaded_image($_FILES['image'] ?? []) : null;
-        $pdo = pdo();
-        $pdo->beginTransaction();
 
-        $stmt = $pdo->prepare(
-            'INSERT INTO users (f_name, l_name, email, phone, password, role, postal_code, district, area, lat, lng, image, is_verified)
-             VALUES (:f_name, :l_name, :email, :phone, :password, :role, :postal_code, :district, :area, NULL, NULL, :image, :is_verified)'
-        );
-        $stmt->execute([
-            'f_name' => $formData['f_name'],
-            'l_name' => $formData['l_name'],
-            'email' => $formData['email'],
-            'phone' => $formData['phone'],
-            'password' => password_hash($password, PASSWORD_DEFAULT),
-            'role' => $selectedRole,
-            'postal_code' => $formData['postal_code'],
-            'district' => $formData['district'],
-            'area' => $formData['area'],
-            'image' => $imagePath,
-            'is_verified' => $selectedRole === 'customer' ? 1 : 0,
-        ]);
+        $data = [
+          'f_name' => trim($_POST['f_name'] ?? ''),
+          'l_name' => trim($_POST['l_name'] ?? ''),
+          'email' => trim($_POST['email'] ?? ''),
+          'phone' => trim($_POST['phone'] ?? ''),
+          'password' => password_hash($password, PASSWORD_DEFAULT),
+          'role' => $selectedRole,
+          'postal_code' => trim($_POST['postal_code'] ?? ''),
+          'district' => trim($_POST['district'] ?? 'Dhaka'),
+          'area' => trim($_POST['area'] ?? ''),
+          'image' => $imagePath,
+          'is_verified' => $selectedRole === 'customer' ? 1 : 0,
+          'service_ids' => $serviceIds,
+        ];
 
-        $userId = (int) $pdo->lastInsertId();
+        $register_success = post_to_api('create_new_user.php', $data);
 
-        if ($selectedRole === 'provider') {
-            $psStmt = $pdo->prepare('INSERT INTO provider_services (provider_id, service_id) VALUES (:provider_id, :service_id)');
-            foreach ($serviceIds as $serviceId) {
-                $psStmt->execute([
-                    'provider_id' => $userId,
-                    'service_id' => $serviceId,
-                ]);
-            }
-        }
-
-        $pdo->commit();
-        set_flash('success', $selectedRole === 'provider'
+        if ($register_success['success']) {
+          set_flash('success', $selectedRole === 'provider'
             ? 'Provider registration submitted. Admin approval is required before login.'
             : 'Customer registration completed. Please login.'
-        );
+          );  
+        }
+
         redirect('login.php');
     } catch (Throwable $e) {
         if (isset($pdo) && $pdo instanceof PDO && $pdo->inTransaction()) {
@@ -220,7 +207,7 @@ render_layout_start('Register', '');
             </div>
             <div class="field field-full">
               <label for="image">Profile image</label>
-              <input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp" required>
+              <input id="image" name="image" type="file" accept=".jpg,.jpeg,.png,.webp">
               <p class="helper-text">You can replace demo images later from code or by uploading a new provider photo.</p>
             </div>
           <?php endif; ?>
