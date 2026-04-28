@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/partials.php';
+require_once "dbapi.php";
 
 $admin = require_role('admin');
 
@@ -10,111 +11,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bookingId = (int) ($_POST['booking_id'] ?? 0);
     $assignedProviderId = (int) ($_POST['assigned_provider_id'] ?? 0);
     $action = $_POST['action'] ?? '';
-
+    
     if ($providerId > 0 && in_array($action, ['allow', 'reject'], true)) {
-        $stmt = pdo()->prepare('UPDATE users SET is_verified = :is_verified WHERE id = :id AND role = "provider"');
-        $stmt->execute([
-            'is_verified' => $action === 'allow' ? 1 : 0,
-            'id' => $providerId,
-        ]);
+        $response = post_to_api('update_provider_verification_status.php', $_POST);
 
-        set_flash('success', $action === 'allow' ? 'Provider approved successfully.' : 'Provider rejected and hidden from the frontend.');
+        if ($response['success']) {
+          set_flash('success', $response['message']);
+        }
+        else {
+          set_flash('error', $response['message']);
+        }
         redirect('admin_dashboard.php');
     }
 
     if ($providerId > 0 && $action === 'revoke') {
-        $stmt = pdo()->prepare('DELETE FROM users WHERE id = :id AND role = "provider"');
-        $stmt->execute(['id' => $providerId]);
-        set_flash('success', 'Provider and all associated data have been completely removed.');
+        $response = post_to_api('delete_user.php', $_POST);
+
+        if ($response['success']) {
+          set_flash('success', $response['message']);
+        }
+        else {
+          set_flash('error', $response['message']);
+        }
         redirect('admin_dashboard.php');
     }
 
     if ($bookingId > 0 && $assignedProviderId > 0 && $action === 'assign_booking') {
-        $check = pdo()->prepare(
-            'SELECT b.id
-             FROM bookings b
-             INNER JOIN provider_services ps ON ps.provider_id = :provider_id AND ps.service_id = b.service_id
-             INNER JOIN users u ON u.id = ps.provider_id
-             WHERE b.id = :booking_id
-               AND b.status = "awaiting_assignment"
-               AND b.payment_status = "paid"
-               AND u.is_verified = 1
-               AND u.role = "provider"
-             LIMIT 1'
-        );
-        $check->execute([
-            'provider_id' => $assignedProviderId,
-            'booking_id' => $bookingId,
-        ]);
+        $_POST['admin_id'] = $admin['id'];
 
-        if ($check->fetch()) {
-            $assign = pdo()->prepare(
-                'UPDATE bookings
-                 SET provider_id = :provider_id,
-                     status = "pending",
-                     assigned_by_admin_id = :admin_id,
-                     assigned_at = NOW(),
-                     expires_at = DATE_ADD(NOW(), INTERVAL 2 MINUTE)
-                 WHERE id = :booking_id
-                   AND status = "awaiting_assignment"
-                   AND payment_status = "paid"'
-            );
-            $assign->execute([
-                'provider_id' => $assignedProviderId,
-                'admin_id' => (int) $admin['id'],
-                'booking_id' => $bookingId,
-            ]);
-            set_flash('success', 'Booking assigned to the selected worker and pushed to the provider queue.');
-        } else {
-            set_flash('error', 'Selected provider is not eligible for this service.');
+        $response = post_to_api('assign_booking_to_provider.php', $_POST);
+
+        if ($response['success']) {
+          set_flash('success', $response['message']);
         }
-
+        else {
+          set_flash('error', $response['message']);
+        }
         redirect('admin_dashboard.php');
     }
 }
 
-$pendingProviders = pdo()->query(
-    'SELECT
-        u.id,
-        u.f_name,
-        u.l_name,
-        u.email,
-        u.phone,
-        u.district,
-        u.area,
-        u.postal_code,
-        u.image,
-        u.created_at,
-        GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ", ") AS services
-     FROM users u
-     LEFT JOIN provider_services ps ON ps.provider_id = u.id
-     LEFT JOIN services s ON s.id = ps.service_id
-     WHERE u.role = "provider" AND u.is_verified = 0
-     GROUP BY u.id
-     ORDER BY u.created_at ASC'
-)->fetchAll();
+$pendingProviders = get_from_api('get_pending_providers.php');
+$activeProviders = get_from_api('get_active_provider.php');
+$allServices = get_from_api('get_all_services.php');
 
-$activeProviders = pdo()->query(
-    'SELECT
-        u.id,
-        u.f_name,
-        u.l_name,
-        u.email,
-        u.phone,
-        u.district,
-        u.area,
-        u.postal_code,
-        u.image,
-        GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ", ") AS services
-     FROM users u
-     LEFT JOIN provider_services ps ON ps.provider_id = u.id
-     LEFT JOIN services s ON s.id = ps.service_id
-     WHERE u.role = "provider" AND u.is_verified = 1
-     GROUP BY u.id
-     ORDER BY u.f_name, u.l_name'
-)->fetchAll();
-
-$allServices = pdo()->query('SELECT name FROM services ORDER BY name ASC')->fetchAll(PDO::FETCH_COLUMN);
 $activeProvidersByService = [];
 foreach ($allServices as $serviceName) {
     $activeProvidersByService[$serviceName] = [];
@@ -139,44 +79,12 @@ if (empty($activeProvidersByService['Unassigned'])) {
     unset($activeProvidersByService['Unassigned']);
 }
 
-$assignmentQueue = pdo()->query(
-    'SELECT
-        b.id,
-        b.message,
-        b.payment_status,
-        b.created_at,
-        b.provider_id,
-        s.id AS service_id,
-        s.name AS service_name,
-        COALESCE(ps_existing.custom_price, s.price) AS amount,
-        c.f_name AS customer_first,
-        c.l_name AS customer_last,
-        c.phone AS customer_phone,
-        p.f_name AS suggested_first,
-        p.l_name AS suggested_last
-     FROM bookings b
-     INNER JOIN services s ON s.id = b.service_id
-     INNER JOIN users c ON c.id = b.customer_id
-     LEFT JOIN users p ON p.id = b.provider_id
-     LEFT JOIN provider_services ps_existing ON ps_existing.provider_id = b.provider_id AND ps_existing.service_id = b.service_id
-     WHERE b.status = "awaiting_assignment" AND b.payment_status = "paid"
-     ORDER BY b.created_at DESC'
-)->fetchAll();
+$assignmentQueue = get_from_api('get_assignements_awaiting_approval.php');
 
-$providerOptionsStmt = pdo()->query(
-    'SELECT
-        ps.service_id,
-        u.id AS provider_id,
-        CONCAT(u.f_name, " ", u.l_name) AS provider_name,
-        COALESCE(ps.custom_price, s.price) AS amount
-     FROM provider_services ps
-     INNER JOIN users u ON u.id = ps.provider_id
-     INNER JOIN services s ON s.id = ps.service_id
-     WHERE u.role = "provider" AND u.is_verified = 1
-     ORDER BY provider_name'
-);
+$providerOptionsStmt = get_from_api('get_providers_by_service.php');
+
 $providerOptions = [];
-foreach ($providerOptionsStmt->fetchAll() as $row) {
+foreach ($providerOptionsStmt as $row) {
     $providerOptions[(int) $row['service_id']][] = $row;
 }
 
@@ -191,15 +99,15 @@ render_layout_start('Admin Dashboard', '');
     <div class="stats-grid" style="margin-bottom: 24px;">
       <div class="metric-card">
         <p class="muted">Pending approvals</p>
-        <div class="metric-value"><?= count($pendingProviders) ?></div>
+        <div class="metric-value"><?= $pendingProviders === null ? 0 : count($pendingProviders) ?></div>
       </div>
       <div class="metric-card">
         <p class="muted">Active providers</p>
-        <div class="metric-value"><?= count($activeProviders) ?></div>
+        <div class="metric-value"><?= $activeProviders === null ? 0 : count($activeProviders) ?></div>
       </div>
       <div class="metric-card">
         <p class="muted">Jobs awaiting assignment</p>
-        <div class="metric-value"><?= count($assignmentQueue) ?></div>
+        <div class="metric-value"><?= $assignmentQueue === null ? 0 : count($assignmentQueue) ?></div>
       </div>
     </div>
 
@@ -233,7 +141,7 @@ render_layout_start('Admin Dashboard', '');
                     <span class="helper-text">Suggested: <?= e(trim((string) ($booking['suggested_first'] . ' ' . $booking['suggested_last'])) ?: 'Admin decides') ?></span>
                   </td>
                   <td>
-                    <form method="post" class="inline-actions">
+                    <form method="POST" class="inline-actions">
                       <input type="hidden" name="booking_id" value="<?= (int) $booking['id'] ?>">
                       <select name="assigned_provider_id" required style="min-width: 240px;">
                         <option value="">Select provider</option>
@@ -377,6 +285,7 @@ render_layout_start('Admin Dashboard', '');
         });
     });
     </script>
+
   </div>
 </section>
 <?php render_layout_end(); ?>
