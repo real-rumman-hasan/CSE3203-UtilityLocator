@@ -9,7 +9,7 @@ $assignedProviderId = (int) ($_POST['assigned_provider_id'] ?? 0);
 
 
 try {
-  $check = pdo()->prepare(
+  $check = $conn->prepare(
             'SELECT b.id
              FROM bookings b
              INNER JOIN provider_services ps ON ps.provider_id = :provider_id AND ps.service_id = b.service_id
@@ -27,7 +27,7 @@ try {
         ]);
 
         if ($check->fetch()) {
-            $assign = pdo()->prepare(
+            $assign = $conn->prepare(
                 'UPDATE bookings
                  SET provider_id = :provider_id,
                      status = "pending",
