@@ -33,7 +33,7 @@ try {
                      status = "pending",
                      assigned_by_admin_id = :admin_id,
                      assigned_at = NOW(),
-                     expires_at = DATE_ADD(NOW(), INTERVAL 2 MINUTE)
+                     expires_at = DATE_ADD(NOW(), INTERVAL 2 DAY)
                  WHERE id = :booking_id
                    AND status = "awaiting_assignment"
                    AND payment_status = "paid"'
