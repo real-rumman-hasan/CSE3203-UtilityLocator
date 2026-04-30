@@ -1,0 +1,20 @@
+# Step 1: Create session object
+$session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+
+# Step 2: Login with new password
+Invoke-WebRequest `
+-Uri "http://localhost/CSE3203-UtilityLocator-main/login.php" `
+-Method POST `
+-WebSession $session `
+-Body @{ email="admin@gmail.com"; password="Admin#2026UL!Admin#2026UL!" } `
+-MaximumRedirection 0
+
+# Step 3: Check cookie
+$session.Cookies
+
+# Step 4: Call protected endpoint
+Invoke-WebRequest `
+-Uri "http://localhost/CSE3203-UtilityLocator-main/api/admin/providers.php" `
+-WebSession $session `
+-UseBasicParsing |
+Select-Object -ExpandProperty Content
