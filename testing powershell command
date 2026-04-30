@@ -6,7 +6,7 @@ Invoke-WebRequest `
 -Uri "http://localhost/CSE3203-UtilityLocator-main/login.php" `
 -Method POST `
 -WebSession $session `
--Body @{ email="admin@gmail.com"; password="Admin#2026UL!Admin#2026UL!" } `
+-Body @{ email="admin@gmail.com"; password="admin123" } `
 -MaximumRedirection 0
 
 # Step 3: Check cookie
